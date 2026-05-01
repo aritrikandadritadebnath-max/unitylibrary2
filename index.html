@@ -67,7 +67,7 @@
             position: fixed; left: 0; top: 0;
             display: flex; flex-direction: column; 
             padding: 2.5rem 1.5rem; border-right: 1px solid var(--border-light);
-            z-index: 1000; transition: var(--transition);
+            z-index: 2000; transition: var(--transition);
         }
 
         .logo-container {
@@ -79,7 +79,8 @@
 
         .menu-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 1rem 0 0.5rem 10px; font-weight: 600; }
 
-        .nav-links { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; flex: 1; }
+        .nav-links { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; flex: 1; overflow-y: auto; scrollbar-width: none; }
+        .nav-links::-webkit-scrollbar { display: none; }
 
         .nav-item {
             color: var(--text-muted); cursor: pointer; transition: var(--transition);
@@ -100,13 +101,25 @@
         .cart-badge.show { opacity: 1; transform: scale(1); }
 
         .sidebar-card {
-            background: #e0b0ff; border-radius: 16px; padding: 1.5rem; 
-            text-align: center; margin-top: auto; position: relative; overflow: hidden;
-            border: 1px solid var(--border-light); color: #111;
+            background: #e0b0ff;
+            border-radius: 16px; padding: 1.5rem; 
+            text-align: center; margin-top: 1rem; position: relative; overflow: hidden;
+            border: 1px solid var(--border-light);
+            color: #111;
         }
-        .sidebar-card .card-icon { background: transparent; margin: 0 auto 0.5rem; display: flex; justify-content: center; }
+        .sidebar-card .card-icon { 
+            background: transparent; margin: 0 auto 0.5rem; display: flex; justify-content: center;
+        }
         .sidebar-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px;}
         .sidebar-card p { font-size: 0.75rem; font-weight: 500;}
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 1500;
+            display: none; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.show { display: block; opacity: 1; }
 
         /* --- MAIN WRAPPER & HEADER CURVE --- */
         .main-content { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1;}
@@ -114,27 +127,38 @@
         .top-bg-curve {
             position: absolute; top: 0; left: 0; width: 100%; height: 420px;
             background: var(--bg-header-curve);
-            border-bottom-left-radius: 80px; z-index: -1; transition: var(--transition);
+            border-bottom-left-radius: 80px;
+            z-index: -1; transition: var(--transition);
         }
 
         .tab-content { display: none; animation: fadeIn 0.4s ease; flex: 1; position: relative; z-index: 1; }
         .tab-content.active { display: block; }
-        .tab-container { padding: 4rem 5%; }
+        .tab-container { padding: 3rem 5%; }
 
         /* --- HEADER & SEARCH --- */
-        header { padding: 2rem 5%; display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 900; }
+        header {
+            padding: 2rem 5%; display: flex; justify-content: space-between; align-items: flex-start;
+            position: relative; z-index: 900; gap: 1rem;
+        }
+
         .header-left { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 600px;}
-        .header-left h1 { font-size: 2.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;}
-        .header-tools { display: flex; align-items: center; gap: 1.5rem; margin-left: auto; height: fit-content;}
+        .header-title-row { display: flex; align-items: center; gap: 1rem;}
+        .header-left h1 { font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 700; color: var(--text-main); margin-bottom: 0;}
+        
+        #mobile-menu-btn { display: none; cursor: pointer; color: var(--text-main); background: var(--bg-cream); padding: 5px; border-radius: 8px; box-shadow: var(--shadow-soft);}
+
+        .header-tools { display: flex; align-items: center; gap: 1.5rem; margin-left: auto; height: fit-content; flex-wrap: wrap; justify-content: flex-end;}
         .theme-toggle { cursor: pointer; color: var(--text-muted); transition: var(--transition); }
         .theme-toggle:hover { color: var(--bronze-dark); transform: rotate(15deg); }
 
         .user-profile-header {
-            display: flex; align-items: center; gap: 12px; cursor: pointer;
-            padding: 0.4rem 0.8rem; border-radius: 50px; background: transparent; transition: var(--transition);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            padding: 0.4rem 0.8rem; border-radius: 50px; background: rgba(255,255,255,0.4);
+            transition: var(--transition); border: 1px solid var(--border-light);
         }
+        .user-profile-header:hover { background: var(--white); box-shadow: var(--shadow-soft);}
         .user-profile-header img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-        .user-profile-header span { font-weight: 500; font-size: 0.9rem; color: var(--text-main); }
+        .user-profile-header span { font-weight: 500; font-size: 0.9rem; color: var(--text-main); display: block;}
 
         .image-search-bar {
             display: flex; background: var(--white); border-radius: 12px; padding: 0.5rem;
@@ -146,19 +170,20 @@
         }
         .image-search-bar input {
             flex: 1; border: none; padding: 0.5rem 1rem; font-family: inherit; background: transparent;
-            color: var(--text-main); outline: none;
+            color: var(--text-main); outline: none; min-width: 0; /* Prevents flex overflow on mobile */
         }
 
         /* --- BUTTONS --- */
         .btn-dark {
             background: #112a22; color: white; border: none; border-radius: 8px;
-            padding: 0.6rem 1.5rem; cursor: pointer; font-family: inherit; font-weight: 500; transition: var(--transition);
+            padding: 0.6rem 1.5rem; cursor: pointer; font-family: inherit; font-weight: 500; transition: var(--transition); white-space: nowrap;
         }
         .btn-dark:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(17, 42, 34, 0.3); }
 
         .btn-bronze {
-            background: var(--bronze-gradient); color: #fff; padding: 1rem 2.5rem; border-radius: 50px; border: none;
-            font-weight: 600; font-size: 1rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--bronze-gradient); color: #fff; padding: 0.8rem 2rem;
+            border-radius: 50px; border: none; font-weight: 600; font-size: 1rem;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
             box-shadow: 0 10px 20px rgba(140, 106, 70, 0.3); transition: var(--transition); font-family: inherit;
         }
         .btn-bronze:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(140, 106, 70, 0.5); }
@@ -166,41 +191,74 @@
         .btn-outline:hover { background: var(--bronze-light); color: var(--white); }
 
         /* --- HOME TAB SPECIFICS --- */
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 3rem 5% 1.5rem; }
-        .section-header h2 { font-size: 1.5rem; font-weight: 600; color: var(--text-main);}
-        .view-all-btn { background: var(--white); border: 1px solid var(--border-light); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.8rem; cursor: pointer; color: var(--text-main);}
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin: 3rem 5% 1.5rem; flex-wrap: wrap; gap: 1rem;}
+        .section-header h2 { font-size: clamp(1.2rem, 3vw, 1.5rem); font-weight: 600; color: var(--text-main);}
+        .view-all-btn { background: var(--white); border: 1px solid var(--border-light); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.8rem; cursor: pointer; color: var(--text-main); white-space: nowrap;}
 
-        /* Comprehensive Book Grid */
+        /* Hero Carousel Image Effect */
+        .book-gallery {
+            height: 380px; display: flex; justify-content: center; align-items: flex-end;
+            padding-bottom: 2rem; position: relative; margin-top: 1rem;
+        }
+        .book-gallery:hover .book-card { transform: rotate(0) translateX(0) translateY(-20px); margin: 0 10px; }
+        .book-card {
+            width: 180px; height: 260px; background: var(--white); border-radius: 12px;
+            position: absolute; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            transition: var(--transition); cursor: pointer; overflow: hidden; border: 4px solid var(--white);
+        }
+        .book-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;}
+        .book-card:hover img { transform: scale(1.1); }
+        .b1 { transform: rotate(-12deg) translateX(-160px); z-index: 1; }
+        .b2 { transform: rotate(-5deg) translateX(-50px); z-index: 2; }
+        .b3 { transform: rotate(5deg) translateX(50px); z-index: 3; }
+        .b4 { transform: rotate(12deg) translateX(160px); z-index: 2; }
+
+        /* Horizontal Recommended Books */
+        .book-rec-wrapper { display: flex; gap: 1.5rem; overflow-x: auto; padding: 0 5% 2rem; scrollbar-width: none; align-items: flex-end;}
+        .book-rec-wrapper::-webkit-scrollbar { display: none; }
+        .book-rec-card-small {
+            min-width: 160px; height: 240px; background: var(--white); border-radius: 12px;
+            box-shadow: var(--shadow-soft); transition: var(--transition); cursor: pointer;
+            position: relative; overflow: hidden; border: 1px solid var(--border-light);
+        }
+        .book-rec-card-small:hover { transform: translateY(-10px); box-shadow: var(--shadow); border-color: var(--bronze-light);}
+        .book-rec-card-small img { width: 100%; height: 100%; object-fit: cover; }
+        .fav-icon { position: absolute; top: 10px; right: 10px; background: white; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #d64545; z-index: 10; opacity: 0; transition: var(--transition); box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+        .book-rec-card-small:hover .fav-icon { opacity: 1; }
+
+        /* Collection Grid */
         .collection-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2rem; padding: 0 5% 4rem;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; padding: 0 5% 4rem;
         }
         .book-item-card {
             background: var(--white); border-radius: 16px; padding: 1rem; box-shadow: var(--shadow-soft);
             transition: var(--transition); cursor: pointer; display: flex; flex-direction: column; position: relative; border: 1px solid var(--border-light);
         }
-        .book-item-card:hover { transform: translateY(-10px); box-shadow: var(--shadow); border-color: var(--bronze-light); }
-        .book-img-box { height: 280px; border-radius: 10px; overflow: hidden; margin-bottom: 1rem; position: relative;}
+        .book-item-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); border-color: var(--bronze-light); }
+        .book-img-box { height: 240px; border-radius: 10px; overflow: hidden; margin-bottom: 1rem; position: relative; background: var(--bg-cream);}
         .book-img-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
         .book-item-card:hover .book-img-box img { transform: scale(1.05); }
-        .book-item-card h4 { font-size: 1.1rem; margin-bottom: 0.2rem; line-height: 1.3;}
-        .book-item-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;}
+        .book-item-card h4 { font-size: 1.05rem; margin-bottom: 0.2rem; line-height: 1.3;}
+        .book-item-card p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;}
         .card-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
         .card-price { font-weight: 700; color: var(--green-dark); font-size: 1.1rem; }
         .add-icon-btn { background: var(--bg-cream); color: var(--bronze-dark); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
         .add-icon-btn:hover { background: var(--green-dark); color: var(--white); transform: scale(1.1); }
 
-        /* Book Category Categories */
-        .cat-wrapper { display: flex; gap: 2rem; overflow-x: auto; padding: 0 5% 5rem; scrollbar-width: none;}
-        .cat-item { text-align: center; cursor: pointer; transition: var(--transition); min-width: 120px;}
+        /* Book Category */
+        .cat-wrapper { display: flex; gap: 1.5rem; overflow-x: auto; padding: 0 5% 5rem; scrollbar-width: none;}
+        .cat-wrapper::-webkit-scrollbar { display: none; }
+        .cat-item { text-align: center; cursor: pointer; transition: var(--transition); min-width: 100px;}
         .cat-item:hover { transform: translateY(-5px); }
-        .cat-img { width: 120px; height: 140px; border-radius: 12px; overflow: hidden; margin-bottom: 0.5rem; box-shadow: var(--shadow-soft); background: var(--white);}
-        .cat-img img { width: 100%; height: 100%; object-fit: cover; }
-        .cat-item p { font-weight: 600; font-size: 0.9rem; color: var(--text-main);}
+        .cat-img { width: 100px; height: 120px; border-radius: 12px; overflow: hidden; margin-bottom: 0.5rem; box-shadow: var(--shadow-soft); background: var(--white); display: flex; align-items: center; justify-content: center;}
+        .cat-img img { width: 80%; height: 80%; object-fit: contain; }
+        .cat-item p { font-weight: 600; font-size: 0.85rem; color: var(--text-main);}
 
+        /* Quote & Newsletter */
         .quote-banner { margin: 2rem 5% 4rem; padding: 4rem 2rem; border-radius: 24px; background: var(--green-dark); color: #fff; text-align: center; box-shadow: 0 20px 40px rgba(27, 67, 50, 0.2); }
         .newsletter { padding: 5rem 5%; text-align: center; background: var(--white); border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); }
-        .newsletter-form { display: flex; max-width: 500px; margin: 0 auto; gap: 10px; }
-        .newsletter-form input { flex: 1; padding: 1rem 1.5rem; border-radius: 50px; border: 1px solid var(--border-light); background: var(--bg-cream); color: var(--text-main); font-family: inherit; }
+        .newsletter-form { display: flex; max-width: 500px; margin: 0 auto; gap: 10px; flex-wrap: wrap; justify-content: center;}
+        .newsletter-form input { flex: 1; min-width: 250px; padding: 1rem 1.5rem; border-radius: 50px; border: 1px solid var(--border-light); background: var(--bg-cream); color: var(--text-main); font-family: inherit; }
 
         /* --- BOOK DETAILS MODAL (ABOUT PAGE) --- */
         .book-details-overlay {
@@ -210,9 +268,9 @@
         }
         .book-details-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
         .book-details-card {
-            background: var(--white); width: 90%; max-width: 900px; max-height: 90vh;
+            background: var(--white); width: 95%; max-width: 900px; max-height: 90vh;
             border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            display: flex; overflow: hidden; position: relative; border: 1px solid var(--border-light);
+            display: flex; flex-direction: row; overflow: hidden; position: relative; border: 1px solid var(--border-light);
         }
         .bd-img { width: 45%; background: var(--bg-cream); position: relative; }
         .bd-img img { width: 100%; height: 100%; object-fit: cover; }
@@ -221,9 +279,9 @@
         .bd-close:hover { color: #d64545; background: #fee2e2;}
         
         .bd-category-badge { display: inline-block; background: var(--green-light); color: var(--green-dark); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; width: fit-content; text-transform: uppercase; letter-spacing: 1px;}
-        .bd-title { font-size: 2.2rem; margin-bottom: 0.5rem; color: var(--text-main); line-height: 1.2; }
-        .bd-author { font-size: 1.2rem; color: var(--bronze-dark); margin-bottom: 1.5rem; font-weight: 500; }
-        .bd-stats { display: flex; gap: 2rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); }
+        .bd-title { font-size: clamp(1.8rem, 3vw, 2.5rem); margin-bottom: 0.5rem; color: var(--text-main); line-height: 1.2; }
+        .bd-author { font-size: 1.1rem; color: var(--bronze-dark); margin-bottom: 1.5rem; font-weight: 500; }
+        .bd-stats { display: flex; gap: 2rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); flex-wrap: wrap;}
         .bd-stat-item { display: flex; flex-direction: column; }
         .bd-stat-lbl { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
         .bd-stat-val { font-size: 1rem; font-weight: 600; color: var(--text-main); }
@@ -232,17 +290,19 @@
         /* --- LIST STRUCTURES (Strict ordered lists) --- */
         .data-list { background: var(--white); border-radius: 16px; padding: 2rem; box-shadow: var(--shadow-soft); border: 1px solid var(--border-light); }
         .data-list ol { list-style-type: decimal; padding-left: 20px; display: flex; flex-direction: column; gap: 1.5rem; }
-        .data-list li { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); line-height: 1.8; color: var(--text-main); }
+        .data-list li { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); line-height: 1.6; color: var(--text-main); }
         .data-list li:last-child { border-bottom: none; padding-bottom: 0; }
         .status-overdue { color: #d64545; font-weight: 600; }
         .status-active { color: var(--green-dark); font-weight: 600; }
 
         /* Form Inputs for Library */
-        .add-book-form { display: none; background: var(--bg-cream); padding: 1.5rem; border-radius: 12px; margin-top: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--border-light); animation: fadeIn 0.3s ease; }
+        .add-book-form { display: none; background: var(--bg-cream); padding: 1.5rem; border-radius: 12px; margin-top: 1rem; margin-bottom: 2rem; border: 1px solid var(--border-light); animation: fadeIn 0.3s ease; }
         .add-book-form input, .add-book-form select { width: 100%; padding: 0.8rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--border-light); font-family: inherit; background: var(--white); color: var(--text-main); }
+        .form-row { display: flex; gap: 1rem; flex-wrap: wrap;}
+        .form-row > * { flex: 1; min-width: 150px;}
 
         /* --- ADMIN DASHBOARD TAB --- */
-        .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
         .stat-card { background: var(--white); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border-light); box-shadow: var(--shadow-soft); border-left: 4px solid var(--green-dark);}
         .stat-card h4 { color: var(--text-muted); font-size: 0.9rem; font-weight: 500;}
         .stat-card h2 { font-size: 2rem; color: var(--text-main); margin-top: 0.5rem;}
@@ -250,62 +310,99 @@
         /* --- AUTH MODAL --- */
         .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 3000; }
         .auth-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
-        .auth-card { background: var(--white); width: 90%; max-width: 420px; padding: 3rem; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
-        .auth-card h2 { margin-bottom: 2rem; text-align: center; font-size: 2rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
+        .auth-card { background: var(--white); width: 90%; max-width: 420px; padding: 2.5rem; border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+        .auth-card h2 { margin-bottom: 1.5rem; text-align: center; font-size: 1.8rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
         .form-group input { width: 100%; padding: 0.8rem 1rem; border-radius: 10px; border: 1px solid var(--border-light); background: var(--bg-cream); color: var(--text-main); font-family: inherit; }
         .auth-toggle { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted); cursor: pointer;}
         .auth-toggle span { color: var(--green-dark); font-weight: 600; }
 
         /* --- CART DRAWER --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); display: none; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
-        .modal-overlay.show { opacity: 1; }
+        .cart-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); display: none; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
+        .cart-overlay.show { opacity: 1; }
         .cart-drawer { position: fixed; top: 0; right: -450px; width: 100%; max-width: 450px; height: 100vh; background: var(--white); box-shadow: -10px 0 40px rgba(0,0,0,0.1); z-index: 2001; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; border-left: 1px solid var(--border-light); }
         .cart-drawer.open { right: 0; }
-        .cart-header { padding: 2rem; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
-        .cart-body { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+        .cart-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+        .cart-body { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
         .cart-item { display: flex; gap: 1rem; background: var(--bg-cream); padding: 1rem; border-radius: 12px; align-items: center; border: 1px solid var(--border-light);}
-        .cart-item img { width: 60px; height: 85px; border-radius: 6px; object-fit: cover; }
+        .cart-item img { width: 50px; height: 75px; border-radius: 6px; object-fit: cover; }
         .cart-item-info { flex: 1; }
-        .cart-footer { padding: 2rem; border-top: 1px solid var(--border-light); background: var(--bg-cream); }
-        .cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem;}
+        .cart-footer { padding: 1.5rem 2rem; border-top: 1px solid var(--border-light); background: var(--bg-cream); }
+        .cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem;}
 
         /* FOOTER, TOAST, COMMUNITY */
-        footer { background: var(--white); padding: 6rem 5% 2rem; margin-top: auto; position: relative; z-index: 1;}
-        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4rem; }
-        .footer-bottom-logo { font-size: clamp(3rem, 15vw, 12rem); color: var(--border-light); text-align: center; margin-top: 4rem; user-select: none; letter-spacing: -2px; }
+        footer { background: var(--white); padding: 4rem 5% 2rem; margin-top: auto; position: relative; z-index: 1;}
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 2rem; }
+        .footer-bottom-logo { font-size: clamp(2.5rem, 10vw, 8rem); color: var(--border-light); text-align: center; margin-top: 3rem; user-select: none; letter-spacing: -2px; }
         
-        .forum-post { background: var(--white); padding: 2rem; border-radius: 20px; border: 1px solid var(--border-light); margin-bottom: 1.5rem; transition: var(--transition); }
+        .forum-post { background: var(--white); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border-light); margin-bottom: 1.5rem; transition: var(--transition); }
         .post-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
 
-        .toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 5000; }
-        .toast { background: var(--text-main); color: var(--bg-cream); padding: 1rem 2rem; border-radius: 50px; font-weight: 500; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: slideUp 0.3s ease forwards, fadeOut 0.3s ease 2.7s forwards; }
+        .toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 5000; width: 90%; max-width: 400px;}
+        .toast { background: var(--text-main); color: var(--bg-cream); padding: 1rem 1.5rem; border-radius: 50px; font-weight: 500; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: slideUp 0.3s ease forwards, fadeOut 0.3s ease 2.7s forwards; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-        /* --- MOBILE RESPONSIVE --- */
-        @media (max-width: 900px) {
+        /* --- RESPONSIVE OPTIMIZATIONS (DESKTOP & MOBILE) --- */
+        @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); padding: 2rem 1rem; }
             .sidebar.open { transform: translateX(0); box-shadow: var(--shadow); }
             .main-content { margin-left: 0; padding-bottom: 70px; }
-            #mobile-menu-btn { display: block !important; margin-right: 15px; cursor: pointer; z-index: 901;}
-            header { flex-direction: column; gap: 1.5rem;}
-            .header-tools { margin-left: 0; width: 100%; justify-content: space-between;}
+            #mobile-menu-btn { display: block !important; margin-right: 10px; z-index: 901; }
+            .header-left h1 { margin-bottom: 0.5rem; }
+            .image-search-bar { width: 100%; margin-top: 0.5rem;}
+            .header-tools { width: 100%; justify-content: flex-end; margin-top: 1rem; }
+            header { flex-direction: column; align-items: stretch; padding: 1.5rem 5%; }
+            .top-bg-curve { height: 460px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;}
+            .tab-container { padding: 2rem 5%; }
+        }
+
+        @media (max-width: 768px) {
+            /* Hero Gallery Adjustments */
+            .book-gallery { height: 300px; }
+            .book-card { width: 140px; height: 200px; }
+            .b1 { transform: rotate(-12deg) translateX(-100px); }
+            .b2 { transform: rotate(-5deg) translateX(-30px); }
+            .b3 { transform: rotate(5deg) translateX(30px); }
+            .b4 { transform: rotate(12deg) translateX(100px); }
+            
             .footer-grid { grid-template-columns: 1fr; text-align: center; }
             .cart-drawer { max-width: 100%; right: -100%; }
             
-            .book-details-card { flex-direction: column; max-height: 90vh; overflow-y: auto; }
-            .bd-img { width: 100%; height: 250px; }
-            .bd-content { width: 100%; padding: 2rem; }
-            .bd-close { top: 10px; right: 10px; }
+            /* Book Details Modal Mobile Fixes */
+            .book-details-card { flex-direction: column; overflow-y: auto; max-height: 95vh; }
+            .bd-img { width: 100%; height: 280px; flex-shrink: 0; }
+            .bd-content { width: 100%; padding: 1.5rem; }
+            .bd-close { top: 10px; right: 10px; background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); }
+            
+            /* Admin Panel / Auth Adjustments */
+            .admin-stats { grid-template-columns: 1fr 1fr; }
+            .auth-card { padding: 2rem; width: 95%; }
+            .image-search-bar select { padding: 0.5rem; font-size: 0.85rem; max-width: 100px; text-overflow: ellipsis; }
+            .image-search-bar input { padding: 0.5rem; font-size: 0.9rem;}
+        }
+
+        @media (max-width: 480px) {
+            .book-gallery { height: 260px; }
+            .book-card { width: 120px; height: 170px; border-width: 2px;}
+            .b1 { transform: rotate(-12deg) translateX(-70px); }
+            .b2 { transform: rotate(-5deg) translateX(-20px); }
+            .b3 { transform: rotate(5deg) translateX(20px); }
+            .b4 { transform: rotate(12deg) translateX(70px); }
+            
+            .admin-stats { grid-template-columns: 1fr; }
+            .header-left h1 { font-size: 1.8rem; }
+            .user-profile-header span { display: none; /* Hide username text on tiny screens */ }
+            .data-list { padding: 1.5rem 1rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- AUTHENTICATION OVERLAY (Simulating Secure Java Login) -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-card">
             <h2 id="authTitle" class="serif">Welcome Back</h2>
@@ -322,7 +419,7 @@
                     <label>Password</label>
                     <input type="password" id="authPassword" placeholder="••••••••" required>
                 </div>
-                <button type="submit" class="btn-dark" style="width: 100%; padding: 1rem; border-radius: 12px; margin-top: 1rem;" id="authBtn">Log In</button>
+                <button type="submit" class="btn-dark" style="width: 100%; padding: 1rem; border-radius: 12px; margin-top: 0.5rem;" id="authBtn">Log In</button>
                 <div class="auth-toggle" onclick="toggleAuthMode()">
                     <span id="authToggleText">Don't have an account? Sign up</span>
                 </div>
@@ -330,6 +427,7 @@
         </div>
     </div>
 
+    <!-- BOOK DETAILS MODAL (About Page) -->
     <div class="book-details-overlay" id="bookDetailsOverlay">
         <div class="book-details-card">
             <div class="bd-close" onclick="closeBookDetails()"><i data-lucide="x"></i></div>
@@ -350,20 +448,24 @@
                     </div>
                     <div class="bd-stat-item">
                         <span class="bd-stat-lbl">Rating</span>
-                        <span class="bd-stat-val" style="color: #f59e0b;"><i data-lucide="star" style="width:14px; fill:currentColor;"></i> 4.8</span>
+                        <span class="bd-stat-val" style="color: #f59e0b; display: flex; align-items:center; gap: 3px;"><i data-lucide="star" style="width:14px; fill:currentColor;"></i> 4.8</span>
                     </div>
                 </div>
 
                 <p class="bd-desc" id="bdDesc">Book description goes here.</p>
                 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; border-top: 1px solid var(--border-light); padding-top: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; border-top: 1px solid var(--border-light); padding-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                     <span style="font-size: 1.8rem; font-weight: 700; color: var(--green-dark);" id="bdPrice">$0.00</span>
-                    <button class="btn-dark" id="bdAddBtn" style="padding: 0.8rem 2rem;"><i data-lucide="shopping-bag" style="width:18px; margin-right:8px; vertical-align:middle;"></i> Add to Cart</button>
+                    <button class="btn-dark" id="bdAddBtn" style="padding: 0.8rem 2rem; display: flex; align-items: center;"><i data-lucide="shopping-bag" style="width:18px; margin-right:8px;"></i> Add to Cart</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- MOBILE SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open'); this.classList.remove('show');"></div>
+
+    <!-- SIDEBAR -->
     <nav class="sidebar" id="sidebar">
         <div class="logo-container" onclick="switchTab('tab-home')">
             <h3 class="serif">Unity Library</h3>
@@ -380,9 +482,9 @@
                 <span class="cart-badge" id="cartBadge">0</span>
             </div>
             
-            <div class="menu-label" style="margin-top: 1.5rem;">Settings & Admin</div>
+            <div class="menu-label" style="margin-top: 1rem;">Settings & Admin</div>
             <div class="nav-item" data-target="tab-admin" id="nav-admin" style="display:none;"><i data-lucide="shield"></i> <span>Admin Panel</span></div>
-            <div class="nav-item" data-target="tab-settings"><i data-lucide="settings"></i> <span>Setting</span></div>
+            <div class="nav-item" data-target="tab-settings"><i data-lucide="settings"></i> <span>Settings</span></div>
             <div class="nav-item" onclick="logout()"><i data-lucide="log-out"></i> <span>Log out</span></div>
         </div>
 
@@ -400,10 +502,11 @@
         
         <header id="main-header">
             <div class="header-left">
-                <div style="display:flex; align-items:center;">
-                    <i data-lucide="menu" id="mobile-menu-btn" style="display: none;" onclick="document.getElementById('sidebar').classList.toggle('open')"></i>
+                <div class="header-title-row">
+                    <i data-lucide="menu" id="mobile-menu-btn" onclick="toggleMobileMenu()"></i>
                     <h1 id="dynamic-title" class="serif">Discover</h1>
                 </div>
+                <!-- Advanced Image Search Bar -->
                 <div class="image-search-bar">
                     <select>
                         <option>All Categories</option>
@@ -411,9 +514,9 @@
                         <option>Design</option>
                         <option>Fiction</option>
                     </select>
-                    <i data-lucide="search" style="margin-left: 10px; color: var(--text-muted); width: 18px;"></i>
+                    <i data-lucide="search" style="margin-left: 5px; color: var(--text-muted); width: 18px; flex-shrink: 0;"></i>
                     <input type="text" placeholder="find the book you like....">
-                    <button class="btn-dark">Search</button>
+                    <button class="btn-dark" style="padding: 0.5rem 1rem;">Search</button>
                 </div>
             </div>
 
@@ -426,23 +529,42 @@
                     <span id="header-username">Guest</span>
                     <i data-lucide="chevron-down" style="width: 14px; color: var(--text-muted);"></i>
                 </div>
-                <div class="nav-item" style="width:auto; height:auto; color: var(--text-muted); cursor:pointer;"><i data-lucide="bell"></i></div>
             </div>
         </header>
 
+        <!-- ================= TAB 1: HOME (DISCOVER) ================= -->
         <div id="tab-home" class="tab-content active">
             
-            <div class="section-header reveal">
-                <h2 class="serif">Browse Collection</h2>
+            <section class="hero reveal">
+                <h2 class="serif" style="display:none;">Welcome</h2> <!-- SEO/Structure -->
+                <div class="book-gallery">
+                    <div class="book-card b1"><img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400" alt="Book"></div>
+                    <div class="book-card b2"><img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=400" alt="Book"></div>
+                    <div class="book-card b3"><img src="https://images.unsplash.com/photo-1629992101753-56d196c8aced?auto=format&fit=crop&q=80&w=400" alt="Book"></div>
+                    <div class="book-card b4"><img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=400" alt="Book"></div>
+                </div>
+            </section>
+
+            <div class="section-header reveal" style="margin-top: 1rem;">
+                <h2 class="serif">Book Recommendation</h2>
                 <button class="view-all-btn">View all ></button>
             </div>
 
-            <section class="collection-grid reveal" id="collection-grid">
-                </section>
+            <section class="book-rec-wrapper reveal" id="recommendation-carousel">
+                <!-- Javascript Data Populated Here -->
+            </section>
 
-            <div class="section-header reveal" style="margin-top: 1rem;">
+            <div class="section-header reveal">
+                <h2 class="serif">Browse Collection</h2>
+                <button class="view-all-btn"><i data-lucide="sliders-horizontal" style="width:14px; vertical-align:middle;"></i> Filter</button>
+            </div>
+
+            <section class="collection-grid reveal" id="collection-grid">
+                <!-- Javascript Full Data Populated Here -->
+            </section>
+
+            <div class="section-header reveal">
                 <h2 class="serif">Browse by Category</h2>
-                <button class="view-all-btn"><i data-lucide="sliders-horizontal" style="width:14px; vertical-align:middle;"></i></button>
             </div>
 
             <section class="cat-wrapper reveal">
@@ -469,12 +591,12 @@
             </section>
 
             <section class="quote-banner reveal">
-                <h1 class="serif" style="color: white; margin-bottom: 1rem;">"A reader lives a thousand lives before he dies. The man who never reads lives only one."</h1>
-                <p style="color: white; font-weight: 500; text-transform: uppercase;">— George R.R. Martin</p>
+                <h1 class="serif" style="color: white; margin-bottom: 1rem; line-height: 1.3;">"A reader lives a thousand lives before he dies. The man who never reads lives only one."</h1>
+                <p style="color: white; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;">— George R.R. Martin</p>
             </section>
 
             <section class="newsletter reveal">
-                <h2 class="serif">Join our Newsletter</h2>
+                <h2 class="serif" style="font-size: 2rem; margin-bottom: 0.5rem;">Join our Newsletter</h2>
                 <p style="color: var(--text-muted); margin-bottom: 2rem;">Get the latest releases directly to your inbox.</p>
                 <div class="newsletter-form">
                     <input type="email" placeholder="Your email address" id="newsletter-input">
@@ -483,52 +605,62 @@
             </section>
         </div>
 
+        <!-- ================= TAB 2: LIBRARY ================= -->
         <div id="tab-library" class="tab-content">
             <div class="tab-container">
                 <div class="data-list reveal">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                         <h2 class="serif">My Borrowed Books</h2>
-                        <button class="btn-dark" onclick="toggleAddBookForm()">+ Add Previously Borrowed</button>
+                        <button class="btn-dark" onclick="toggleAddBookForm()">+ Add Book</button>
                     </div>
                     
                     <div class="add-book-form" id="addBookForm">
-                        <h4 class="serif" style="margin-bottom: 1rem;">Add a Previous Book</h4>
+                        <h4 class="serif" style="margin-bottom: 1rem;">Add a Previously Borrowed Book</h4>
                         <input type="text" id="newBookTitle" placeholder="Enter Book Title">
-                        <div style="display: flex; gap: 1rem;">
-                            <input type="date" id="newBookDate" style="flex:1;">
-                            <select id="newBookStatus" style="flex:1; margin-bottom: 1rem;">
+                        <div class="form-row">
+                            <input type="date" id="newBookDate">
+                            <select id="newBookStatus">
                                 <option value="Returned">Returned</option>
                                 <option value="Active">Active</option>
                             </select>
                         </div>
-                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                            <button class="btn-bronze" onclick="submitNewBook()">Save Record</button>
-                            <button class="btn-outline" onclick="toggleAddBookForm()">Cancel</button>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn-bronze" onclick="submitNewBook()" style="flex:1;">Save Record</button>
+                            <button class="btn-outline" onclick="toggleAddBookForm()" style="flex:1;">Cancel</button>
                         </div>
                     </div>
 
                     <ol id="library-list">
-                        </ol>
+                        <!-- Populated by JS -->
+                    </ol>
                 </div>
             </div>
         </div>
         
-        <div id="tab-category" class="tab-content"><div class="tab-container"><h2 class="serif">Categories</h2><p>Explore all categories in detail here.</p></div></div>
+        <!-- ================= TAB: CATEGORY ================= -->
+        <div id="tab-category" class="tab-content">
+            <div class="tab-container">
+                <h2 class="serif" style="margin-bottom: 1rem;">All Categories</h2>
+                <p style="color: var(--text-muted);">Explore our diverse catalog by genre.</p>
+            </div>
+        </div>
 
+        <!-- ================= TAB 3: COMMUNITY ================= -->
         <div id="tab-community" class="tab-content">
             <div class="tab-container">
+                <h2 class="serif" style="margin-bottom: 2rem;">Discussions</h2>
                 <div class="forum-post reveal">
                     <div class="post-header">
                         <img src="https://ui-avatars.com/api/?name=Marcus&background=bfa58a&color=fff" style="width:40px; border-radius:50%;" alt="User">
                         <div>
-                            <h4>Marcus Thorne</h4>
-                            <p style="font-size: 0.8rem; color: var(--text-muted);">2 hours ago</p>
+                            <h4 style="margin: 0; line-height: 1;">Marcus Thorne</h4>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">2 hours ago</span>
                         </div>
                     </div>
-                    <p>Just finished reading <strong>The Psychology of Money</strong>. The lessons on compounding are completely unexpected! Has anyone else read the final chapter yet?</p>
-                    <div style="margin-top: 1rem; color: var(--bronze-dark); display: flex; gap: 1rem; cursor: pointer;">
-                        <span><i data-lucide="heart" style="width:16px; vertical-align:middle;"></i> 24</span>
-                        <span><i data-lucide="message-square" style="width:16px; vertical-align:middle;"></i> 5 Replies</span>
+                    <p style="font-size: 0.95rem;">Just finished reading <strong>The Psychology of Money</strong>. The lessons on compounding are completely unexpected! Has anyone else read the final chapter yet?</p>
+                    <div style="margin-top: 1rem; color: var(--bronze-dark); display: flex; gap: 1.5rem; cursor: pointer;">
+                        <span style="display:flex; align-items:center; gap:5px;"><i data-lucide="heart" style="width:16px;"></i> 24</span>
+                        <span style="display:flex; align-items:center; gap:5px;"><i data-lucide="message-square" style="width:16px;"></i> 5 Replies</span>
                     </div>
                 </div>
                 
@@ -536,24 +668,25 @@
                     <div class="post-header">
                         <img src="https://ui-avatars.com/api/?name=Elena&background=1b4332&color=fff" style="width:40px; border-radius:50%;" alt="User">
                         <div>
-                            <h4>Elena Rostova</h4>
-                            <p style="font-size: 0.8rem; color: var(--text-muted);">5 hours ago</p>
+                            <h4 style="margin: 0; line-height: 1;">Elena Rostova</h4>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">5 hours ago</span>
                         </div>
                     </div>
-                    <p>Looking for recommendations on clean architecture and design patterns. I loved Robert C. Martin's work. What should I pick up next?</p>
-                    <div style="margin-top: 1rem; color: var(--bronze-dark); display: flex; gap: 1rem; cursor: pointer;">
-                        <span><i data-lucide="heart" style="width:16px; vertical-align:middle;"></i> 12</span>
-                        <span><i data-lucide="message-square" style="width:16px; vertical-align:middle;"></i> 18 Replies</span>
+                    <p style="font-size: 0.95rem;">Looking for recommendations on clean architecture and design patterns. I loved Robert C. Martin's work. What should I pick up next?</p>
+                    <div style="margin-top: 1rem; color: var(--bronze-dark); display: flex; gap: 1.5rem; cursor: pointer;">
+                        <span style="display:flex; align-items:center; gap:5px;"><i data-lucide="heart" style="width:16px;"></i> 12</span>
+                        <span style="display:flex; align-items:center; gap:5px;"><i data-lucide="message-square" style="width:16px;"></i> 18 Replies</span>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- ================= TAB 4: ADMIN DASHBOARD ================= -->
         <div id="tab-admin" class="tab-content">
             <div class="tab-container" style="padding-top: 2rem;">
-                <div style="display:flex; justify-content: space-between; margin-bottom: 2rem; align-items:center;">
+                <div style="display:flex; justify-content: space-between; margin-bottom: 2rem; align-items:center; flex-wrap: wrap; gap: 1rem;">
                     <h2 class="serif">Live Database Overview</h2>
-                    <button class="btn-dark" onclick="syncSheets()"><i data-lucide="refresh-cw" style="width:16px; margin-right:5px; vertical-align:middle;"></i> Sync Google Sheets</button>
+                    <button class="btn-dark" onclick="syncSheets()"><i data-lucide="refresh-cw" style="width:16px; margin-right:5px; vertical-align:middle;"></i> Sync Sheets</button>
                 </div>
                 
                 <div class="admin-stats reveal">
@@ -566,20 +699,22 @@
                 <div class="data-list reveal">
                     <h3 class="serif" style="margin-bottom: 1.5rem;">Recent Borrowing History</h3>
                     <ol id="admin-list-body">
-                        </ol>
+                        <!-- Javascript Data -->
+                    </ol>
                 </div>
             </div>
         </div>
 
+        <!-- ================= TAB 5: SETTINGS ================= -->
         <div id="tab-settings" class="tab-content">
             <div class="tab-container">
-                <div class="settings-card reveal" style="background: var(--white); padding: 2.5rem; border-radius: 20px; border: 1px solid var(--border-light); max-width: 600px;">
+                <div class="settings-card reveal" style="background: var(--white); padding: 2.5rem; border-radius: 20px; border: 1px solid var(--border-light); max-width: 600px; margin: 0 auto;">
                     <h2 class="serif" style="margin-bottom: 1.5rem;">Profile Settings</h2>
                     <div class="form-group" style="margin-bottom: 1.5rem;">
                         <label style="display:block; margin-bottom:0.5rem; font-weight:500;">Display Name</label>
                         <input type="text" id="settingsName" placeholder="Enter your name" style="width:100%; padding:1rem; border-radius:10px; border:1px solid var(--border-light); background:var(--bg-cream); font-family:inherit; color: var(--text-main);">
                     </div>
-                    <button class="btn-bronze" onclick="saveSettings()">Save Changes</button>
+                    <button class="btn-bronze" style="width: 100%;" onclick="saveSettings()">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -587,28 +722,31 @@
         <footer>
             <div class="footer-grid">
                 <div>
-                    <h3 class="serif" style="font-size: 1.8rem; margin-bottom: 1rem;">Let's connect <i data-lucide="external-link"></i></h3>
-                    <p style="color: var(--text-muted);">Unity Library E-Corner. Bringing physical reading to the digital era.</p>
+                    <h3 class="serif" style="font-size: 1.8rem; margin-bottom: 1rem;">Let's connect <i data-lucide="external-link" style="width: 20px;"></i></h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Unity Library E-Corner. Bringing physical reading to the digital era.</p>
                 </div>
                 <div>
                     <h4 style="margin-bottom: 1rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.85rem;">Website</h4>
                     <p style="cursor: pointer; margin-bottom: 0.5rem;" onclick="switchTab('tab-home')">Home</p>
                     <p style="cursor: pointer; margin-bottom: 0.5rem;" onclick="switchTab('tab-library')">Library</p>
+                    <p style="cursor: pointer; margin-bottom: 0.5rem;" onclick="switchTab('tab-community')">Community</p>
                 </div>
                 <div>
                     <h4 style="margin-bottom: 1rem; color: var(--text-muted); text-transform: uppercase; font-size: 0.85rem;">Legal</h4>
                     <p style="cursor: pointer; margin-bottom: 0.5rem;">Privacy Policy</p>
-                    <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">© 2026 Unity Library</p>
+                    <p style="cursor: pointer; margin-bottom: 0.5rem;">Terms of Service</p>
+                    <p style="margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">© 2026 Unity Library</p>
                 </div>
             </div>
             <div class="footer-bottom-logo serif">Unity Library</div>
         </footer>
     </div>
 
-    <div class="modal-overlay" id="cartOverlay" onclick="closeCart()"></div>
+    <!-- --- CART DRAWER --- -->
+    <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
     <div class="cart-drawer" id="cartDrawer">
         <div class="cart-header">
-            <h3 class="serif">Your Cart & Favorites</h3>
+            <h3 class="serif" style="margin: 0; font-size: 1.3rem;">Your Cart</h3>
             <div onclick="closeCart()" style="cursor:pointer; color:var(--text-muted); transition: var(--transition);"><i data-lucide="x"></i></div>
         </div>
         <div class="cart-body" id="cartBody">
@@ -631,12 +769,12 @@
         let isSignupMode = false;
 
         window.onload = () => {
-            if (!localStorage.getItem('unity_lib_session_v4')) {
+            if (!localStorage.getItem('unity_lib_session_v5')) {
                 const overlay = document.getElementById('authOverlay');
                 overlay.style.display = 'flex';
                 setTimeout(() => overlay.classList.add('show'), 10);
             } else {
-                currentUser = JSON.parse(localStorage.getItem('unity_lib_user_v4'));
+                currentUser = JSON.parse(localStorage.getItem('unity_lib_user_v5'));
                 updateAuthUI();
             }
             renderStoreData();
@@ -658,8 +796,8 @@
             const name = isSignupMode ? document.getElementById('authName').value : email.split('@')[0];
             
             currentUser = { name: name || 'User', email: email, role: email.includes('admin') ? 'admin' : 'customer' };
-            localStorage.setItem('unity_lib_session_v4', 'true');
-            localStorage.setItem('unity_lib_user_v4', JSON.stringify(currentUser));
+            localStorage.setItem('unity_lib_session_v5', 'true');
+            localStorage.setItem('unity_lib_user_v5', JSON.stringify(currentUser));
             
             document.getElementById('authOverlay').classList.remove('show');
             setTimeout(() => document.getElementById('authOverlay').style.display = 'none', 300);
@@ -669,8 +807,8 @@
         }
 
         function logout() {
-            localStorage.removeItem('unity_lib_session_v4');
-            localStorage.removeItem('unity_lib_user_v4');
+            localStorage.removeItem('unity_lib_session_v5');
+            localStorage.removeItem('unity_lib_user_v5');
             location.reload();
         }
 
@@ -689,9 +827,21 @@
         function saveSettings() {
             if(currentUser) {
                 currentUser.name = document.getElementById('settingsName').value;
-                localStorage.setItem('unity_lib_user_v4', JSON.stringify(currentUser));
+                localStorage.setItem('unity_lib_user_v5', JSON.stringify(currentUser));
                 updateAuthUI();
                 showToast('Settings saved to database', 'database');
+            }
+        }
+
+        // Mobile Menu Logic
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            if(sidebar.classList.contains('open')) {
+                overlay.classList.add('show');
+            } else {
+                overlay.classList.remove('show');
             }
         }
 
@@ -718,34 +868,47 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             });
+            // Close mobile menu if open
             document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('show');
         }
 
         navItems.forEach(item => {
             item.addEventListener('click', () => switchTab(item.getAttribute('data-target')));
         });
 
-        // 4. EXTANDED Data Injection & About Modal
+        // 4. Data Injection & About Modal
         const storeBooks = [
-            { id: 1, title: "The Psychology of Money", author: "Morgan Housel", category: "Finance", pages: 342, year: 2020, price: 24.99, img: "https://images.unsplash.com/photo-1592496431122-2349e0fbc666?auto=format&fit=crop&q=80&w=400", desc: "Timeless lessons on wealth, greed, and happiness. Doing well with money isn't necessarily about what you know. It's about how you behave. And behavior is hard to teach, even to really smart people." },
+            { id: 1, title: "The Psychology of Money", author: "Morgan Housel", category: "Finance", pages: 342, year: 2020, price: 24.99, img: "https://images.unsplash.com/photo-1592496431122-2349e0fbc666?auto=format&fit=crop&q=80&w=400", desc: "Timeless lessons on wealth, greed, and happiness. Doing well with money isn't necessarily about what you know. It's about how you behave." },
             { id: 2, title: "Company of One", author: "Paul Jarvis", category: "Business", pages: 272, year: 2019, price: 18.50, img: "https://images.unsplash.com/photo-1554774853-719586f82d77?auto=format&fit=crop&q=80&w=400", desc: "What if the real key to a richer and more fulfilling career was not to create and scale a new startup, but rather, to be able to work for yourself, determine your own hours, and become a highly profitable and sustainable company of one?" },
-            { id: 3, title: "How Innovation Works", author: "Matt Ridley", category: "History/Tech", pages: 416, year: 2020, price: 21.00, img: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=400", desc: "Building on his bestseller The Rational Optimist, Matt Ridley chronicles the history of innovation, arguing that we need to change the way we think about it, from a top-down process to an organic, bottom-up one." },
+            { id: 3, title: "How Innovation Works", author: "Matt Ridley", category: "Tech", pages: 416, year: 2020, price: 21.00, img: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=400", desc: "Building on his bestseller The Rational Optimist, Matt Ridley chronicles the history of innovation, arguing that we need to change the way we think about it, from a top-down process to an organic, bottom-up one." },
             { id: 4, title: "The Picture of Dorian Gray", author: "Oscar Wilde", category: "Fiction", pages: 254, year: 1890, price: 15.99, img: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400", desc: "Oscar Wilde’s only novel is the dreamlike story of a young man who sells his soul for eternal youth and beauty. A classic that remains as relevant today as when it was first published." },
             { id: 5, title: "Atomic Habits", author: "James Clear", category: "Self-Help", pages: 320, year: 2018, price: 19.99, img: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=400", desc: "No matter your goals, Atomic Habits offers a proven framework for improving--every day. James Clear reveals practical strategies to form good habits and break bad ones." },
             { id: 6, title: "Deep Work", author: "Cal Newport", category: "Self-Help", pages: 304, year: 2016, price: 22.50, img: "https://images.unsplash.com/photo-1629992101753-56d196c8aced?auto=format&fit=crop&q=80&w=400", desc: "Rules for focused success in a distracted world. Deep work is the ability to focus without distraction on a cognitively demanding task. It's a skill that allows you to quickly master complicated information." },
             { id: 7, title: "Thinking, Fast and Slow", author: "Daniel Kahneman", category: "Psychology", pages: 499, year: 2011, price: 25.00, img: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=400", desc: "The phenomenal New York Times bestseller by the Nobel Prize-winning psychologist. Kahneman takes us on a groundbreaking tour of the mind and explains the two systems that drive the way we think." },
-            { id: 8, title: "Sapiens", author: "Yuval Noah Harari", category: "History", pages: 464, year: 2015, price: 20.00, img: "https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&q=80&w=400", desc: "A brief history of humankind. Earth is 4.5 billion years old. In just a fraction of that time, one species among countless others has conquered it: us. Harari explores how we got here." },
-            { id: 9, title: "1984", author: "George Orwell", category: "Fiction", pages: 328, year: 1949, price: 14.50, img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=400", desc: "Among the seminal texts of the 20th century, Nineteen Eighty-Four is a rare work that grows more haunting as its futuristic purgatory becomes more real." },
-            { id: 10, title: "Clean Code", author: "Robert C. Martin", category: "Design/Tech", pages: 464, year: 2008, price: 45.00, img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=400", desc: "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees. A handbook of agile software craftsmanship." },
-            { id: 11, title: "The Alchemist", author: "Paulo Coelho", category: "Fiction", pages: 163, year: 1988, price: 16.99, img: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=400", desc: "Paulo Coelho's enchanting novel has inspired a devoted following around the world. This story, dazzling in its powerful simplicity and inspiring wisdom, is about an Andalusian shepherd boy." },
-            { id: 12, title: "Steve Jobs", author: "Walter Isaacson", category: "Biography", pages: 656, year: 2011, price: 28.00, img: "https://images.unsplash.com/photo-1505664177941-ebf4fa0e8b1b?auto=format&fit=crop&q=80&w=400", desc: "Based on more than forty interviews with Jobs conducted over two years—as well as interviews with more than a hundred family members, friends, adversaries, competitors, and colleagues." }
+            { id: 8, title: "Sapiens", author: "Yuval Noah Harari", category: "History", pages: 464, year: 2015, price: 20.00, img: "https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&q=80&w=400", desc: "A brief history of humankind. Earth is 4.5 billion years old. In just a fraction of that time, one species among countless others has conquered it: us. Harari explores how we got here." }
         ];
 
         function renderStoreData() {
-            const recGrid = document.getElementById('collection-grid');
+            // Horizontal recommendations (Top 4)
+            const recGrid = document.getElementById('recommendation-carousel');
             recGrid.innerHTML = '';
-            storeBooks.forEach(book => {
+            for(let i=0; i<4; i++) {
+                const book = storeBooks[i];
                 recGrid.innerHTML += `
+                    <div class="book-rec-card-small" onclick="openBookDetails(${book.id})">
+                        <div class="fav-icon" onclick="event.stopPropagation(); addToCart(${book.id})" title="Add to Cart">
+                            <i data-lucide="plus" style="width:16px;"></i>
+                        </div>
+                        <img src="${book.img}" alt="${book.title}">
+                    </div>`;
+            }
+
+            // Full Collection Grid
+            const collectionGrid = document.getElementById('collection-grid');
+            collectionGrid.innerHTML = '';
+            storeBooks.forEach(book => {
+                collectionGrid.innerHTML += `
                     <div class="book-item-card" onclick="openBookDetails(${book.id})">
                         <div class="book-img-box">
                             <img src="${book.img}" alt="${book.title}">
@@ -755,7 +918,7 @@
                         <div class="card-bottom">
                             <span class="card-price">$${book.price.toFixed(2)}</span>
                             <button class="add-icon-btn" onclick="event.stopPropagation(); addToCart(${book.id})" title="Add to Cart">
-                                <i data-lucide="plus" style="width:20px;"></i>
+                                <i data-lucide="plus" style="width:18px;"></i>
                             </button>
                         </div>
                     </div>`;
@@ -807,7 +970,7 @@
                     <li>
                         <strong>${book.title}</strong><br>
                         Borrowed: ${book.date} | Status: <span style="font-weight:600; ${statusColor}">${book.status}</span><br>
-                        <button class="btn-outline" style="margin-top:10px; padding: 0.4rem 1rem;" onclick="removeLibraryBook(${index})">Remove Record</button>
+                        <button class="btn-outline" style="margin-top:10px; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="removeLibraryBook(${index})">Remove Record</button>
                     </li>
                 `;
             });
@@ -855,7 +1018,8 @@
                 const statusClass = item.status === 'Overdue' ? 'status-overdue' : 'status-active';
                 adminBody.innerHTML += `
                     <li>
-                        <strong>${item.user}</strong> borrowed <em>${item.title}</em> (Due: ${item.due}) - <span class="${statusClass}">${item.status}</span>
+                        <strong>${item.user}</strong> borrowed <em>${item.title}</em><br>
+                        Due: ${item.due} - <span class="${statusClass}">${item.status}</span>
                     </li>`;
             });
         }
@@ -912,8 +1076,8 @@
                     <div class="cart-item">
                         <img src="${item.img}" alt="${item.title}">
                         <div class="cart-item-info">
-                            <h5 class="serif" style="margin-bottom:5px; color: var(--text-main);">${item.title}</h5>
-                            <p style="color:var(--bronze-dark); font-weight:600;">$${item.price.toFixed(2)}</p>
+                            <h5 class="serif" style="margin-bottom:2px; font-size: 0.95rem; color: var(--text-main);">${item.title}</h5>
+                            <p style="color:var(--bronze-dark); font-weight:600; font-size: 0.9rem;">$${item.price.toFixed(2)}</p>
                         </div>
                         <i data-lucide="trash-2" onclick="removeFromCart(${index})" style="color:#d64545; cursor:pointer; padding:5px;"></i>
                     </div>
